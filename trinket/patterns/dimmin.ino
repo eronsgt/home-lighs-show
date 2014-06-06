@@ -24,8 +24,7 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(16, PIN, NEO_GRB + NEO_KHZ800);
 void setup() {
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
-  strip.setBrightness(255); // 1/3 brightness
-   randomSeed(analogRead(2)); 
+  randomSeed(analogRead(2)); 
   
 
 
@@ -39,21 +38,20 @@ dimm(); // one random pixel blink
 
 
 void dimm() {
-    byte B=random(255);
-    byte R=random(255);
-    byte G=random(255);
+    int B=random(255);
+    int R=random(255);
+    int G=random(255);
     
-    for (byte Br=0; Br < 255; Br++){
-  for (byte T=0; T < 16; T++){
-    strip.setPixelColor(T,R,G,B);
-    strip.setPixelColor(T,R,G,B);
-
-    
-    
+    for ( int Q=0; Q < 250; Q++ ){
+    for ( int p=0; p < 16; p++ ) {
       
+        
+      strip.setBrightness(Q); 
+    strip.setPixelColor(p,R,G,B);
     
-  strip.show();
-       } 
+    strip.show();
+      }
   }
-  }  
+  
 }
+       
