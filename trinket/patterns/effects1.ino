@@ -4,6 +4,7 @@
 #endif
 
 #define PIN 0
+#define PIXELS 16 // number of pixels in strip
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = Arduino pin number (most are valid)
@@ -12,7 +13,7 @@
 //   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
 //   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
 //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(16, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
 // IMPORTANT: To reduce NeoPixel burnout risk, add 1000 uF capacitor across
 // pixel power leads, add 300 - 500 Ohm resistor on first pixel's data input
@@ -67,7 +68,7 @@ for (byte T=0; T < 40; T++){
     byte R=random(255);
     byte G=random(255);
   for (byte T=0; T < 10; T++){
-    byte p=random(16);
+    byte p=random(PIXELS);
     strip.setPixelColor(p,R,G,B);
 
   strip.show();
@@ -84,7 +85,7 @@ for (byte T=0; T < 21; T++){
     byte R=random(255);
     byte G=random(255);
   for (byte T=0; T < 10; T++){
-    byte p=random(16);
+    byte p=random(PIXELS);
     strip.setPixelColor(p,R,G,B);
     strip.setPixelColor(p+8,R,G,B);
 
@@ -107,12 +108,12 @@ void halfSpin() { // wait = delay ms, times = loop cycles
   byte R=random(255); // random RED
   byte G=random(255); // ramdom GREEN
   byte B=random(255); // random BLUE
-  for (byte p=0; p < 16; p++) { // p = dot positions (0-16)
+  for (byte p=0; p < PIXELS; p++) { 
     strip.setPixelColor(p,R,G,B); // set position and colors
   strip.show(); // on pixel
   delay(20);
    }
-   for (byte p=0; p < 16; p++) {
+   for (byte p=0; p < PIXELS; p++) {
     strip.setPixelColor(p,0); // set blank
   strip.show(); // turn pixel off
   delay(20);
@@ -121,12 +122,12 @@ void halfSpin() { // wait = delay ms, times = loop cycles
   byte Ro=random(255);
   byte Go=random(255);
   byte Bo=random(255);
-  for (char p=16; p > -1; p=p-1) {
+  for (char p=PIXELS; p > -1; p=p-1) {
     strip.setPixelColor(p,Ro,Go,Bo);
   strip.show();
   delay(20);
    }
-  for (char p=16; p > -1; p=p-1) {
+  for (char p=PIXELS; p > -1; p=p-1) {
     strip.setPixelColor(p,0);
   strip.show();
   delay(20);
@@ -176,7 +177,7 @@ void theaterChase(uint8_t c, uint8_t wait) {
 //Theatre-style crawling 1 light with rainbow effect
 void theaterChaseRainbow1() {
   for (byte j=0; j < 255; j++) {     // cycle all 256 colors in the wheel
-    for (byte q=0; q < 16; q++) {   // set position
+    for (byte q=0; q < PIXELS; q++) {   // set position
         for (byte i=0; i < strip.numPixels(); i=i+10) {
           strip.setPixelColor(q, Wheel( (i+j) % 255));    //turn every  pixel on
          
