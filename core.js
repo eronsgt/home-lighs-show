@@ -6,6 +6,7 @@ var oscServer = new osc.Server(8000, '0.0.0.0');
 var OPC = new require('./opc');
 var model = OPC.loadModel(process.argv[2] || '/home/pi/fadecandy/examples/layouts/strip116.json');  // layout generated using https://github.com/scanlime/fadecandy/tree/master/examples/layouts
 var client = new OPC('localhost', 7890);
+var pixels = 230 // number of pixels in strip
  
 // strobe
 var strobeON = 0;
@@ -28,47 +29,50 @@ var falloff = 0.5;
 var rate1 = 0.1;
 var rate2 = 0.2;
 var particleON = 0;
+var particleTimeoutDelay = 30
 
 // effect 3 (random color strobe)
 var randomStrobeON = 0;
 var redRandomTo = 255
 var greenRandomTo = 255
 var blueRandomTo = 255
+var randomStrobeTimeoutDelay = 30
  
  
-oscServer.on('message', function (msg, rinfo) {
+oscServer.on('message', function (msg, rinfo) { // take params from TouchOSC 
  
     // Show the message, for debugging
     console.log(msg);
  
  
 // strobe 
-if (msg[0] == '/5/STROB') strobeON = msg[1];
-if (msg[0] == '/5/SDELAY') sdelay = msg[1];
+if (msg[0] == '/5/STROB') strobeON = msg[1]; // button (0-1)
+if (msg[0] == '/5/SDELAY') sdelay = msg[1]; // fader (0-500)
  
-// effect 1 (strip fade) + strobe
-if (msg[0] == '/1/RED') red1 = msg[1];
-if (msg[0] == '/1/GREEN') green1 = msg[1];
-if (msg[0] == '/1/BLUE') blue1 = msg[1];
-if (msg[0] == '/1/FALLOFF') fall = msg[1];
+// effect 1 (waves)
+if (msg[0] == '/1/RED') red1 = msg[1]; // fader (0-255)
+if (msg[0] == '/1/GREEN') green1 = msg[1]; // fader (0-255)
+if (msg[0] == '/1/BLUE') blue1 = msg[1]; // fader (0-255)
+if (msg[0] == '/1/FALLOFF') fall = msg[1]; // fader (0-255)
 
 // effect 2 (particle)
-if (msg[0] == '/4/hue') hue = msg[1];
-if (msg[0] == '/4/hueShift') hueShift = msg[1];
-if (msg[0] == '/4/saturation') saturation = msg[1];
-if (msg[0] == '/4/falloff2') falloff = msg[1];
-if (msg[0] == '/4/brightness') brightness = msg[1];
-if (msg[0] == '/4/particleON') particleON = msg[1];
-if (msg[0] == '/4/xy1') { // XY pad, oscillator rates
+if (msg[0] == '/4/hue') hue = msg[1]; // fader (0.00001-0.99999)
+if (msg[0] == '/4/hueShift') hueShift = msg[1];  // fader (0.00001-0.99999)
+if (msg[0] == '/4/saturation') saturation = msg[1];  // fader (0.00001-0.99999)
+if (msg[0] == '/4/falloff2') falloff = msg[1];  // fader (0.00001-0.99999)
+if (msg[0] == '/4/brightness') brightness = msg[1];  // fader (0.00001-0.99999)
+if (msg[0] == '/4/particleON') particleON = msg[1]; // button (0-1)
+if (msg[0] == '/4/particleTimeoutDelay') particleTimeoutDelay = msg[1]; // fader (0-50)
+if (msg[0] == '/4/xy1') { // XY pad, oscillator rates  (0.00001-0.99999)
         rate1 = msg[1];
         rate2 = msg[2];
     }
 // effect 3 (random color strobe)    
-if (msg[0] == '/6/RED') redRandomTo = msg[1];
-if (msg[0] == '/6/GREEN') greenRandomTo = msg[1];
-if (msg[0] == '/6/BLUE') blueRandomTo = msg[1];
-if (msg[0] == '/6/randomStrobeON') randomStrobeON = msg[1];
-
+if (msg[0] == '/6/RED') redRandomTo = msg[1]; // fader (0-255)
+if (msg[0] == '/6/GREEN') greenRandomTo = msg[1]; // fader (0-255)
+if (msg[0] == '/6/BLUE') blueRandomTo = msg[1]; // fader (0-255)
+if (msg[0] == '/6/randomStrobeON') randomStrobeON = msg[1]; // button (0-1)
+if (msg[0] == '/6/randomStrobeTimeoutDelay') randomStrobeTimeoutDelay = msg[1]; // fader (0-5000)
 });
  
 function draw() {
@@ -78,11 +82,11 @@ function draw() {
         });    
     }   else if  (particleON == 1) { // Button Particle is toggled ON  
         doParticles(function(){
-            setTimeout(draw,30); // repeat
+            setTimeout(draw,particleTimeoutDelay); // repeat
         });
     }   else if  (randomStrobeON == 1) { // Button Random Strobe is toggled ON
         doRandomeStrobe(function(){
-            setTimeout(draw,30); // repeat
+            setTimeout(draw,randomStrobeTimeoutDelay); // repeat
         });     
     }   else {
         doFall(function(){
@@ -97,7 +101,7 @@ function doRandomeStrobe(callback) { // effect 3 (random color strobe)
     var green = Math.floor((Math.random() * greenRandomTo) + 1);
     var blue = Math.floor((Math.random() * blueRandomTo) + 1);
     console.log(red, green, blue);   
-        for (var pixel = 0; pixel < 230; pixel++)
+        for (var pixel = 0; pixel < pixels; pixel++)
     {
         client.setPixel(pixel, red, green, blue);
     }
@@ -107,10 +111,10 @@ function doRandomeStrobe(callback) { // effect 3 (random color strobe)
  
 function doParticles(callback) { // effect 2 (particle) 
 
-    var numParticles = 230;
+    var numParticles = pixels;
     var particles = [];
 
-    var trail = 100.0;
+    var trail = 116.0;
     var scaledRate1 = (rate1 - 0.4) * 0.4;
     var scaledRate2 = (rate2 - 0.4) * 0.4;
     stateAngle1 += scaledRate1;
@@ -142,7 +146,7 @@ function doParticles(callback) { // effect 2 (particle)
  
 function doFall(callback) { // (vawes Math.sin(time)) 
     var millis = new Date().getTime();
-    for (var pixel = 0; pixel < 230; pixel++) {
+    for (var pixel = 0; pixel < pixels; pixel++) {
         var t = pixel * 0.2 + millis * 0.002,
             red = red1 + fall * Math.sin(t),
             green = green1 + fall * Math.sin(t + 0.1),
@@ -166,11 +170,11 @@ function doStrobe(callback) {
  
         setTimeout(callback,sdelay/*delay after black*/);
  
-    }, 10/*delay after */);
+    }, 10/*delay*/);
 }
  
 function setPixels(r,g,b) {
-    for (var pixel = 0; pixel < 230; pixel++) {
+    for (var pixel = 0; pixel < pixels; pixel++) {
         client.setPixel(pixel, r, g, b);
     }
     client.writePixels();
