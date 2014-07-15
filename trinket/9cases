@@ -1,0 +1,299 @@
+#include <Adafruit_NeoPixel.h>
+#ifdef __AVR_ATtiny85__ // Trinket, Gemma, etc.
+#include <avr/power.h>
+#endif
+
+int buttonPin = 3;    // momentary push button on pin 
+int oldButtonVal = 0;
+
+#define PIN 0
+#define PIXELS 107 // number of pixels in strip (108 is maximum for adafruit trinket ):
+
+// Parameter 1 = number of pixels in strip
+// Parameter 2 = Arduino pin number (most are valid)
+// Parameter 3 = pixel type flags, add together as needed:
+//   NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
+//   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
+//   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
+//   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXELS, PIN, NEO_GRB + NEO_KHZ800);
+
+// IMPORTANT: To reduce NeoPixel burnout risk, add 1000 uF capacitor across
+// pixel power leads, add 300 - 500 Ohm resistor on first pixel's data input
+// and minimize distance between Arduino and first pixel.  Avoid connecting
+// on a live circuit...if you must, connect GND first.
+
+
+
+
+byte nPatterns = 9; // number of patterns
+byte lightPattern = 1;
+
+
+void setup() {
+  strip.begin();
+  strip.show(); // Initialize all pixels to 'off'
+  strip.setBrightness(255); // full brightness
+ // randomSeed(analogRead(2)); 
+  pinMode(buttonPin, INPUT);
+  digitalWrite(buttonPin, HIGH);  // button pin is HIGH, so it drops to 0 if pressed
+  
+}
+
+
+void loop() {
+  // read that state of the pushbutton value;
+  int buttonVal = digitalRead(buttonPin);
+  if (buttonVal == LOW && oldButtonVal == HIGH) {// button has just been pressed
+    lightPattern = lightPattern + 1;
+  }
+  if (lightPattern > nPatterns) lightPattern = 1;
+  oldButtonVal = buttonVal;
+  
+  switch(lightPattern) {
+    case 1:
+      pattern1();
+      break;
+    case 2:
+      pattern2();
+      break;
+    case 3:
+      pattern3();
+      break;
+    case 4:
+      pattern4();
+      break;
+    case 5:
+      pattern5();
+      break;
+    case 6:
+      pattern6();
+      break;
+    case 7:
+      pattern7();
+      break;
+    case 8:
+      pattern8();
+      break;
+      case 9:
+      pattern9();
+      break;
+  }
+}
+
+void sync(uint32_t ms) {
+  delay(ms);
+}
+  
+
+void pattern1() {
+  
+
+    byte B=random(255);
+    byte R=random(255);
+    byte G=random(255);
+  for (byte T=0; T < 10; T++){
+    int buttonVal = digitalRead(buttonPin);
+    if (buttonVal == LOW && oldButtonVal == HIGH) { break;  }
+    byte p=random(PIXELS);
+    strip.setPixelColor(p,R,G,B);
+
+  strip.show();
+  delay(30);
+
+      strip.setPixelColor(p, 0);        //turn every 'int p' pixel off
+       } 
+    }
+
+void pattern2() {
+    byte B=random(255);
+    byte R=random(255);
+    byte G=random(255);
+  for (byte T=0; T < 10; T++){
+    int buttonVal = digitalRead(buttonPin);
+    if (buttonVal == LOW && oldButtonVal == HIGH) { break;  }
+    byte p=random(PIXELS);
+    strip.setPixelColor(p,R,G,B);
+    strip.setPixelColor(p+8,R,G,B);
+  strip.show();
+  delay(30);
+
+      strip.setPixelColor(p, 0);        //turn every p pixel off
+      strip.setPixelColor(p+8, 0);        //turn every p pixel off
+    } 
+  }
+
+
+//Half Spin Random 
+void pattern3() { // wait = delay ms, times = loop cycles
+ 
+  
+
+    // initialise spin from right to left  
+  byte R=random(255); // random RED
+  byte G=random(255); // ramdom GREEN
+  byte B=random(255); // random BLUE
+  for (byte p=0; p < PIXELS; p++) { 
+    int buttonVal = digitalRead(buttonPin);
+    if (buttonVal == LOW && oldButtonVal == HIGH) { break;  }
+    strip.setPixelColor(p,R,G,B); // set position and colors
+  strip.show(); // on pixel
+  delay(20);
+   }
+   for (byte p=0; p < PIXELS; p++) {
+    strip.setPixelColor(p,0); // set blank
+    
+  strip.show(); // turn pixel off
+  delay(20);
+  }
+  // initialise spin from left 
+  byte Ro=random(255);
+  byte Go=random(255);
+  byte Bo=random(255);
+  for (char p=PIXELS; p > -1; p=p-1) {
+    strip.setPixelColor(p,Ro,Go,Bo);
+  strip.show();
+  delay(20);
+   }
+  for (char p=PIXELS; p > -1; p=p-1) {
+    strip.setPixelColor(p,0);
+  strip.show();
+  delay(20);
+  }
+ }
+
+// Led Random Blink 
+
+  
+  // 1 Led Random Spin
+void pattern4() { // T = how many times repeat, p = position
+    byte R=random(255);
+    byte G=random(255);
+    byte B=random(255);
+    for (byte p=0; p< strip.numPixels(); p++) {
+      int buttonVal = digitalRead(buttonPin);
+    if (buttonVal == LOW && oldButtonVal == HIGH) { break;  }
+    strip.setPixelColor(p,R,G,B);
+    
+    
+   strip.show();
+   delay(10);
+   strip.setPixelColor(p, 0);        //turn every pixel off
+    }
+  }
+  
+
+//Theatre-style crawling lights.
+void pattern5() {
+    for (byte j=0; j < 255; j++) {     // cycle all 256 colors in the wheel
+     
+  
+    for (byte q=0; q < 3; q++) {
+        for (byte i=0; i < strip.numPixels(); i=i+3) {
+          strip.setPixelColor(i+q, Wheel( (i+j) % 255));    //turn every third pixel on
+        }
+        strip.show();
+        
+       
+        delay(52);
+       
+        for (byte i=0; i < strip.numPixels(); i=i+3) {
+          strip.setPixelColor(i+q, 0);        //turn every third pixel off
+        }
+    }
+    int buttonVal = digitalRead(buttonPin);
+    if (buttonVal == LOW && oldButtonVal == HIGH) { break;  }
+  }
+}
+
+//Theatre-style crawling 1 light with rainbow effect
+void pattern6() {
+  for (byte j=0; j < 255; j++) {     // cycle all 256 colors in the wheel
+    for (byte q=0; q < PIXELS; q++) {   // set position
+        for (byte i=0; i < strip.numPixels(); i=i+10) {
+          strip.setPixelColor(q, Wheel( (i+j) % 255));    //turn every  pixel on
+         
+        }
+    
+        strip.show();
+       
+        delay(10);
+       
+        for (byte i=0; i < strip.numPixels(); i=i+3) {
+          strip.setPixelColor(i+q, 0);        //turn every third pixel off
+        }
+       
+    }
+    int buttonVal = digitalRead(buttonPin);
+    if (buttonVal == LOW && oldButtonVal == HIGH) { break;  }
+  }
+}
+
+//randomTwoPixelsSpin
+void pattern9() {
+     
+     
+    byte R=random(255);
+    byte G=random(255);
+    byte B=random(255);
+  
+    for (byte q=0; q < PIXELS; q++) {
+      int buttonVal = digitalRead(buttonPin);
+    if (buttonVal == LOW && oldButtonVal == HIGH) { break;  }
+        for (byte i=0; i < strip.numPixels(); i++) {
+          strip.setPixelColor(q,R,G,B);    //turn every  pixel on
+          strip.setPixelColor(q+8,R,G,B);   //turn every  pixel on
+
+        }
+    
+        strip.show();
+       
+        delay(25);
+       
+          strip.setPixelColor(q, 0);        //turn q pixel off
+          strip.setPixelColor(q+8, 0);        //turn q+8 pixel off   
+   }
+}
+
+
+void pattern8() {
+  uint8_t i, j;
+    for(j=0; j<255; j++) {
+    int buttonVal = digitalRead(buttonPin);
+    if (buttonVal == LOW && oldButtonVal == HIGH) { break;  }
+    for(i=0; i<strip.numPixels(); i++) {
+      strip.setPixelColor(i, Wheel((i+j) & 255));
+    }
+    strip.show();
+    delay(50);
+  }
+}
+
+void pattern7() {
+  uint16_t i, j;
+
+  for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
+  int buttonVal = digitalRead(buttonPin);
+    if (buttonVal == LOW && oldButtonVal == HIGH) { break;  }
+    for(i=0; i< strip.numPixels(); i++) {
+      strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
+    }
+    strip.show();
+    delay(10);
+  }
+}
+
+
+// Input a value 0 to 255 to get a color value.
+// The colours are a transition r - g - b - back to r.
+uint32_t Wheel(byte WheelPos) {
+  if(WheelPos < 85) {
+    return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+  } else if(WheelPos < 170) {
+   WheelPos -= 85;
+   return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+  } else {
+   WheelPos -= 170;
+   return strip.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+  }
+}
